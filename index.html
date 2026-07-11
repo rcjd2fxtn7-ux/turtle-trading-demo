@@ -78,12 +78,12 @@ tabsEl.appendChild(t)});
 
 ['ep','xp','am'].forEach(id=>{$(id).oninput=e=>{$(id+'V').textContent=e.target.value;run()}});
 
-function atr(highs,lows,closes,p){const tr=[];for(let i=0;i<closes.length;i++){if(i===0){tr.push(highs[i]-lows[i]);continue}
+function calcATR(highs,lows,closes,p){const tr=[];for(let i=0;i<closes.length;i++){if(i===0){tr.push(highs[i]-lows[i]);continue}
 tr.push(Math.max(highs[i]-lows[i],Math.abs(highs[i]-closes[i-1]),Math.abs(lows[i]-closes[i-1])))}
 const a=[];for(let i=0;i<tr.length;i++){if(i<p-1){a.push(null);continue}let s=0;for(let j=i-p+1;j<=i;j++)s+=tr[j];a.push(s/p)}return{tr,atr:a}}
 
 function turtle(op,hi,lo,cl,ep,xp,atrP,atrM){
-  const n=cl.length,{atr}=atr(hi,lo,cl,atrP);
+  const n=cl.length,{atr}=calcATR(hi,lo,cl,atrP);
   const eH=[],xL=[];
   for(let i=0;i<n;i++){if(i<ep){eH.push(null)}else{let mx=-Infinity;for(let j=i-ep;j<i;j++)mx=Math.max(mx,hi[j]);eH.push(mx)}
   if(i<xp){xL.push(null)}else{let mn=Infinity;for(let j=i-xp;j<i;j++)mn=Math.min(mn,lo[j]);xL.push(mn)}}
