@@ -204,7 +204,9 @@ function renderCmp(){
     $('cmp').innerHTML=h;
 }
 
-(function(){
+window.addEventListener('load', function(){
+    if(typeof echarts==='undefined'){console.error('echarts not loaded');return;}
+    try{
     var sel=$('tabs');
     Object.keys(D).forEach(function(n){
         var t=document.createElement('div');
@@ -217,7 +219,8 @@ function renderCmp(){
     $('xp').oninput=function(){render();};
     $('am').oninput=function(){render();};
     render();
-})();
+    }catch(e){console.error('Render error:',e.message,e.stack);}
+});
 
 </script>
 </body></html>
