@@ -82,7 +82,7 @@ function calcATR(highs,lows,closes,p){const tr=[];for(let i=0;i<closes.length;i+
 tr.push(Math.max(highs[i]-lows[i],Math.abs(highs[i]-closes[i-1]),Math.abs(lows[i]-closes[i-1])))}
 const a=[];for(let i=0;i<tr.length;i++){if(i<p-1){a.push(null);continue}let s=0;for(let j=i-p+1;j<=i;j++)s+=tr[j];a.push(s/p)}return{tr,atr:a}}
 
-function turtle(op,hi,lo,cl,ep,xp,atrP,atrM){
+function turtle(op,hi,lo,cl,ep,xp,atrP,atrM,dates){
   const n=cl.length,atrData=calcATR(hi,lo,cl,atrP).atr;
   const eH=[],xL=[];
   for(let i=0;i<n;i++){if(i<ep){eH.push(null)}else{let mx=-Infinity;for(let j=i-ep;j<i;j++)mx=Math.max(mx,hi[j]);eH.push(mx)}
@@ -99,7 +99,7 @@ function turtle(op,hi,lo,cl,ep,xp,atrP,atrM){
 function run(){
   const ep=+$('ep').value,xp=+$('xp').value,am=+$('am').value;
   const d=D[cur],dates=d.dates,op=d.open,hi=d.high,lo=d.low,cl=d.close,vol=d.vol,n=cl.length;
-  const r=turtle(op,hi,lo,cl,ep,xp,20,am);
+  const r=turtle(op,hi,lo,cl,ep,xp,20,am,dates);
   const bh=cl.map(c=>c/cl[0]);
   // metrics
   const sr=r.nv[n-1]/r.nv[0]-1,bhr=cl[n-1]/cl[0]-1;
@@ -175,7 +175,7 @@ function runCmp(){
   const combos=[[20,10,2],[20,10,3],[10,5,2],[55,20,2]];
   let h='<thead><tr><th>股票</th><th>入场/出场/止损</th><th>策略收益</th><th>持有收益</th><th>最大回撤</th><th>夏普</th><th>交易数</th></tr></thead><tbody>';
   Object.keys(D).forEach(name=>{const d=D[name],cl=d.close,n=cl.length;
-  combos.forEach(([ep,xp,am])=>{const r=turtle(d.open,d.high,d.low,cl,ep,xp,20,am);
+  combos.forEach(([ep,xp,am])=>{const r=turtle(d.open,d.high,d.low,cl,ep,xp,20,am,d.dates);
   const sr=r.nv[n-1]/r.nv[0]-1,bhr=cl[n-1]/cl[0]-1;
   let pk=0;const dd=r.nv.map(v=>{if(v>pk)pk=v;return-(pk-v)/pk*100});const mdd=Math.min(...dd);
   const dr=[];for(let i=1;i<r.nv.length;i++)dr.push(r.nv[i]/r.nv[i-1]-1);
