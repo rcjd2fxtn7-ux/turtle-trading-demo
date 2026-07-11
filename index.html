@@ -83,16 +83,16 @@ tr.push(Math.max(highs[i]-lows[i],Math.abs(highs[i]-closes[i-1]),Math.abs(lows[i
 const a=[];for(let i=0;i<tr.length;i++){if(i<p-1){a.push(null);continue}let s=0;for(let j=i-p+1;j<=i;j++)s+=tr[j];a.push(s/p)}return{tr,atr:a}}
 
 function turtle(op,hi,lo,cl,ep,xp,atrP,atrM){
-  const n=cl.length,{atr}=calcATR(hi,lo,cl,atrP);
+  const n=cl.length,atrData=calcATR(hi,lo,cl,atrP).atr;
   const eH=[],xL=[];
   for(let i=0;i<n;i++){if(i<ep){eH.push(null)}else{let mx=-Infinity;for(let j=i-ep;j<i;j++)mx=Math.max(mx,hi[j]);eH.push(mx)}
   if(i<xp){xL.push(null)}else{let mn=Infinity;for(let j=i-xp;j<i;j++)mn=Math.min(mn,lo[j]);xL.push(mn)}}
   let cap=CAP,sh=0,pos=0,entryP=0,stopP=0;const nv=[],trades=[];
-  for(let i=0;i<n;i++){if(eH[i]==null||atr[i]==null){nv.push(cap+sh*cl[i]);continue}
-  if(pos===0&&cl[i]>eH[i]){const u=Math.max(1,Math.floor(cap*0.01/atr[i]));sh=u;entryP=cl[i];stopP=entryP-atrM*atr[i];cap-=sh*entryP;pos=1;
-  trades.push({action:'买入',price:cl[i],shares:sh,reason:'突破'+ep+'日高点'})}
-  else if(pos===1){if(cl[i]<xL[i]){cap+=sh*cl[i];trades.push({action:'卖出(通道)',price:cl[i],shares:sh,reason:'跌破'+xp+'日低点'});sh=0;pos=0}
-  else if(cl[i]<stopP){cap+=sh*cl[i];trades.push({action:'卖出(止损)',price:cl[i],shares:sh,reason:atrM+'倍ATR止损'});sh=0;pos=0}}
+  for(let i=0;i<n;i++){if(eH[i]==null||atrData[i]==null){nv.push((cap+sh*cl[i])/CAP);continue}
+  if(pos===0&&cl[i]>eH[i]){const maxSh=Math.floor(cap/cl[i]);const u=Math.max(1,Math.min(maxSh,Math.floor(cap*0.01/atrData[i])));sh=u;entryP=cl[i];stopP=entryP-atrM*atrData[i];cap-=sh*entryP;pos=1;
+  trades.push({date:dates[i],action:'买入',price:cl[i],shares:sh,reason:'突破'+ep+'日高点'})}
+  else if(pos===1){if(cl[i]<xL[i]){cap+=sh*cl[i];trades.push({date:dates[i],action:'卖出(通道)',price:cl[i],shares:sh,reason:'跌破'+xp+'日低点'});sh=0;pos=0}
+  else if(cl[i]<stopP){cap+=sh*cl[i];trades.push({date:dates[i],action:'卖出(止损)',price:cl[i],shares:sh,reason:atrM+'倍ATR止损'});sh=0;pos=0}}
   nv.push((cap+sh*cl[i])/CAP)}
   return{eH,xL,nv,trades}}
 
@@ -166,7 +166,7 @@ function run(){
   },true);
 
   // trade table
-  $('tb').innerHTML=r.trades.map((t,i)=>'<tr><td>'+(i+1)+'</td><td>'+(i<r.trades.length?'-':'')+'</td><td class="'+(t.action.includes('买')?'buy':'sell')+'">'+t.action+'</td><td>'+t.price.toFixed(2)+'</td><td>'+t.shares+'</td><td>'+t.reason+'</td></tr>').join('');
+  $('tb').innerHTML=r.trades.map((t,i)=>'<tr><td>'+(i+1)+'</td><td>'+(t.date||'-')+'</td><td class="'+(t.action.includes('买')?'buy':'sell')+'">'+t.action+'</td><td>'+t.price.toFixed(2)+'</td><td>'+t.shares+'</td><td>'+t.reason+'</td></tr>').join('');
 
   runCmp();
 }
